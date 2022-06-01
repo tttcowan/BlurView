@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -43,7 +44,18 @@ public class RenderEffectBlur implements BlurAlgorithm {
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         blurView.getMeasuredHeight()
                 );
-                blurView.addView(backgroundView, 0, params);
+                try {
+                    blurView.addView(backgroundView, 0, params);
+                }
+                catch (IllegalStateException e) {
+                    if (e.getMessage() != null && e.getMessage().equalsIgnoreCase("The specified child already has a parent. You must call removeView() on the child's parent first.")) {
+                        ((ViewGroup) backgroundView.getParent()).removeView(backgroundView);
+                        blurView.addView(backgroundView, 0, params);
+                    }
+                    else {
+                        throw e;
+                    }
+                }
             }
         });
     }
